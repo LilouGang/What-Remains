@@ -24,40 +24,30 @@ const ParticleCanvas = ({ exclusionBox, decayConfig, hasStarted }) => {
             const centerX = exclusionBox.left + exclusionBox.width / 2;
             const centerY = exclusionBox.top + exclusionBox.height / 2;
             
-            // On définit la zone d'exclusion (Rectangle + marge de la particule)
+            // Répulsion symétrique pure
             const halfW = (exclusionBox.width / 2) + p.innerMargin;
             const halfH = (exclusionBox.height / 2) + p.innerMargin;
 
-            // Calcul de la distance par rapport au centre sur chaque axe
             const dx = p.x - centerX;
             const dy = p.y - centerY;
             const absX = Math.abs(dx);
             const absY = Math.abs(dy);
 
-            // Si la particule est à l'intérieur de la zone d'exclusion
             if (absX < halfW && absY < halfH) {
-              // On calcule un facteur de pénétration (0 au bord, 1 au centre)
               const overlapX = 1 - (absX / halfW);
               const overlapY = 1 - (absY / halfH);
-              
-              // On utilise le plus grand chevauchement pour pousser la particule
-              const force = Math.max(overlapX, overlapY) * 2.5;
+              const force = Math.max(overlapX, overlapY) * 3.5;
               const angle = Math.atan2(dy, dx);
               
               p.x += Math.cos(angle) * force;
               p.y += Math.sin(angle) * force;
-
-              // Jitter pour éviter les alignements sur les bords
-              p.x += (Math.random() - 0.5) * 0.5;
-              p.y += (Math.random() - 0.5) * 0.5;
             }
           }
 
-          // Screen wrap
-          if (p.x < 0) p.x = window.innerWidth;
-          if (p.x > window.innerWidth) p.x = 0;
-          if (p.y < 0) p.y = window.innerHeight;
-          if (p.y > window.innerHeight) p.y = 0;
+          if (p.x < -20) p.x = window.innerWidth + 20;
+          if (p.x > window.innerWidth + 20) p.x = -20;
+          if (p.y < -20) p.y = window.innerHeight + 20;
+          if (p.y > window.innerHeight + 20) p.y = -20;
         } else {
           p.y += p.vy;
           p.x += p.vx;
@@ -83,10 +73,7 @@ const ParticleCanvas = ({ exclusionBox, decayConfig, hasStarted }) => {
     window.addEventListener('resize', resize);
     resize();
     render();
-    return () => { 
-      cancelAnimationFrame(frame); 
-      window.removeEventListener('resize', resize); 
-    };
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', resize); };
   }, [exclusionBox, decayConfig, hasStarted, fadeOpacity, particles]);
 
   return <canvas ref={canvasRef} style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', backgroundColor: 'white' }} />;

@@ -5,8 +5,10 @@ export const STAGES = [
     unit: "hectares",
     glyphs: ['|'],
     voice: '/audio/voice_1.mp3',
-    fact: "10 000 000 hectares par an. L’équivalent d’un pays comme le Portugal effacé, chaque année.",
-    source: "https://www.fao.org/forest-resources-assessment/en/"
+    script: [{ text: "Apparemment, nous avions besoin de cet espace pour autre chose.", delay: 500 }],
+    fact: "10 000 000 d'hectares par an. L'équivalent d'un pays européen moyen.",
+    source: "https://openknowledge.fao.org/...",
+    volume: 0.8
   },
   {
     question: "Quelle quantité de plastique finit dans l’océan chaque année ?",
@@ -14,8 +16,13 @@ export const STAGES = [
     unit: "tonnes",
     glyphs: ['~'],
     voice: '/audio/voice_2.mp3',
-    fact: "11 000 000 tonnes par an. L’équivalent d’un camion poubelle déversé en mer toutes les 30 secondes, sans interruption.",
-    source: "https://www.unep.org/resources/report/from-pollution-solution-global-assessment-marine-litter-and-plastic-pollution"
+    script: [
+      { text: "Une trace indélébile. ", delay: 500 },
+      { text: "C'est peut-être tout ce qu'il restera de nous.", delay: 800 }
+    ],
+    fact: "11 000 000 de tonnes. Aucun mécanisme naturel de disparition.",
+    source: "https://www.unep.org/...",
+    volume: 0.75
   },
   {
     question: "Quelle quantité d’eau est nécessaire pour produire un steak de 200 g ?",
@@ -23,26 +30,41 @@ export const STAGES = [
     unit: "litres",
     glyphs: ['·'],
     voice: '/audio/voice_3.mp3',
-    fact: "3 000 litres. Soit l’eau potable d’une personne pendant près de deux ans.",
-    source: "https://waterfootprint.org/resources/Hoekstra-Mekonnen-2012-WaterFootprintFarmAnimalProducts.pdf"
+    script: [
+      { text: "Un investissement très rentable, ", delay: 500 },
+      { text: "n'est-ce pas ?", delay: 1200 }
+    ],
+    fact: "3 000 litres. Une consommation invisible au moment de l’achat.",
+    source: "https://waterfootprint.org/...",
+    volume: 0.7
   },
   {
-    question: "Quelle part de la biomasse d’insectes volants a disparu en une génération humaine ?",
+    question: "Quelle part de la biomasse d’insectes volants a disparu en une génération ?",
     answer: "80",
     unit: "%",
     glyphs: ['*'],
     voice: '/audio/voice_4.mp3',
-    fact: "80 % en moins en 30 ans. Une base écologique presque entièrement supprimée.",
-    source: "https://www.nature.com/articles/s41586-019-1684-3"
+    script: [
+      { text: "Il faudra sans doute finir par s'y habituer. ", delay: 500 },
+      { text: "Au silence, je veux dire.", delay: 1000 }
+    ],
+    fact: "80 % de déclin. Un effondrement mesuré sur trente ans.",
+    source: "https://www.nature.com/...",
+    volume: 0.6
   },
   {
     question: "Quelle masse de déchets électroniques l’humanité produit-elle chaque année ?",
     answer: "62 000 000",
     unit: "tonnes",
-    glyphs: ['+'],
+    glyphs: ['x'],
     voice: '/audio/voice_5.mp3',
-    fact: "62 000 000 tonnes par an. Plus lourd que l’ensemble de la population humaine.",
-    source: "https://ewastemonitor.info/gem-2024/"
+    script: [
+      { text: "On empile, on jette, et on recommence. ", delay: 500 },
+      { text: "C’est un cycle comme un autre.", delay: 700 }
+    ],
+    fact: "62 000 000 de tonnes. Une croissance plus rapide que le recyclage.",
+    source: "https://ewastemonitor.info/...",
+    volume: 0.5
   },
   {
     question: "Combien de personnes meurent chaque année à cause de la pollution de l’air ?",
@@ -50,17 +72,27 @@ export const STAGES = [
     unit: "personnes",
     glyphs: ['-'],
     voice: '/audio/voice_6.mp3',
-    fact: "7 000 000 de morts par an. Une des premières causes de mortalité mondiale.",
-    source: "https://www.who.int/news-room/fact-sheets/detail/ambient-(outdoor)-air-quality-and-health"
+    script: [
+      { text: "Une statistique stable. ", delay: 500 },
+      { text: "C'est le prix à payer pour continuer de circuler.", delay: 800 }
+    ],
+    fact: "7 000 000 de morts. Mortalité documentée à l’échelle mondiale.",
+    source: "https://www.who.int/...",
+    volume: 0.4
   },
   {
     question: "Quelle quantité de CO₂ l’humanité rejette-t-elle chaque année ?",
     answer: "37 000 000 000",
     unit: "tonnes",
-    glyphs: ['/'],
+    glyphs: ['§'],
     voice: '/audio/voice_7.mp3',
-    fact: "37 000 000 000 tonnes par an. Un volume que la planète ne peut plus absorber.",
-    source: "https://www.globalcarbonproject.org/carbonbudget/"
+    script: [
+      { text: "Le ciel change, mais les indicateurs sont au vert. ", delay: 500 },
+      { text: "C'est l'essentiel.", delay: 800 }
+    ],
+    fact: "37 000 000 000 de tonnes. Accumulation atmosphérique nette.",
+    source: "https://www.globalcarbonproject.org/...",
+    volume: 0.3
   },
   {
     question: "Quelle masse de glace terrestre disparaît chaque année ?",
@@ -68,17 +100,27 @@ export const STAGES = [
     unit: "tonnes",
     glyphs: ['^'],
     voice: '/audio/voice_8.mp3',
-    fact: "1 000 000 000 000 tonnes par an. Une élévation irréversible du niveau des mers.",
-    source: "https://essd.copernicus.org/articles/13/5501/2021/"
+    script: [
+      { text: "C'est physique. C'est mathématique. ", delay: 500 },
+      { text: "C'est définitif.", delay: 1000 }
+    ],
+    fact: "1 000 000 000 000 de tonnes. Perte mesurée par satellites.",
+    source: "https://essd.copernicus.org/...",
+    volume: 0.2
   },
   {
     question: "Combien d’espèces disparaissent définitivement chaque année ?",
     answer: "36 000",
     unit: "espèces",
-    glyphs: ['x'],
+    glyphs: ['&'],
     voice: '/audio/voice_9.mp3',
-    fact: "36 000 espèces par an. Un rythme comparable aux grandes extinctions du passé géologique.",
-    source: "https://ipbes.net/global-assessment"
+    script: [
+      { text: "On simplifie l'équation du vivant. ", delay: 500 },
+      { text: "C'est beaucoup plus lisible ainsi.", delay: 800 }
+    ],
+    fact: "36 000 espèces rayées du registre. Taux d'extinction record.",
+    source: "https://ipbes.net/...",
+    volume: 0.12
   },
   {
     question: "Quel est le déclin moyen des populations de vertébrés depuis 1970 ?",
@@ -86,7 +128,12 @@ export const STAGES = [
     unit: "%",
     glyphs: ['°'],
     voice: '/audio/voice_10.mp3',
-    fact: "73 % de diminution en un demi-siècle. La majorité du vivant a déjà disparu.",
-    source: "https://livingplanet.panda.org/"
+    script: [
+      { text: "La pièce est presque vide. ", delay: 500 },
+      { text: "On va pouvoir fermer boutique.", delay: 1000 }
+    ],
+    fact: "73 % de déclin. Population mondiale des vertébrés.",
+    source: "https://livingplanet.panda.org/",
+    volume: 0.08
   }
 ];

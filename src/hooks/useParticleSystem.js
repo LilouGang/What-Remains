@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 
-const GLYPHS = ['~', '|', '·', '°', '+', '-', '/', '*', 'x', '^'];
+const GLYPHS = ['~', '|', '·', '°', '+', '-', '"', '*', 'x', '^'];
 const COUNT = 2000;
 
 export const useParticleSystem = (decayConfig, hasStarted) => {

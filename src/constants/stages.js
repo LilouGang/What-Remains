@@ -1,56 +1,16 @@
 export const STAGES = [
   {
-    question: "Quelle surface de forêt l’humanité détruit-elle chaque année ?",
-    answer: "10 000 000",
-    unit: "hectares",
-    glyphs: ['|'],
-    voice: '/audio/voice_1.mp3',
-    script: [{ text: "Apparemment, nous avions besoin de cet espace pour autre chose.", delay: 500 }],
-    fact: "10 000 000 d'hectares par an. L'équivalent d'un pays européen moyen.",
-    source: "https://openknowledge.fao.org/...",
-    volume: 0.8
-  },
-  {
-    question: "Quelle quantité de plastique finit dans l’océan chaque année ?",
-    answer: "11 000 000",
-    unit: "tonnes",
-    glyphs: ['~'],
-    voice: '/audio/voice_2.mp3',
-    script: [
-      { text: "Une trace indélébile. ", delay: 500 },
-      { text: "C'est peut-être tout ce qu'il restera de nous.", delay: 800 }
-    ],
-    fact: "11 000 000 de tonnes. Aucun mécanisme naturel de disparition.",
-    source: "https://www.unep.org/...",
-    volume: 0.75
-  },
-  {
     question: "Quelle quantité d’eau est nécessaire pour produire un steak de 200 g ?",
     answer: "3 000",
     unit: "litres",
     glyphs: ['·'],
     voice: '/audio/voice_3.mp3',
-    script: [
-      { text: "Un investissement très rentable, ", delay: 500 },
-      { text: "n'est-ce pas ?", delay: 1200 }
-    ],
-    fact: "3 000 litres. Une consommation invisible au moment de l’achat.",
-    source: "https://waterfootprint.org/...",
-    volume: 0.7
-  },
-  {
-    question: "Quelle part de la biomasse d’insectes volants a disparu en une génération ?",
-    answer: "80",
-    unit: "%",
-    glyphs: ['*'],
-    voice: '/audio/voice_4.mp3',
-    script: [
-      { text: "Il faudra sans doute finir par s'y habituer. ", delay: 500 },
-      { text: "Au silence, je veux dire.", delay: 1000 }
-    ],
-    fact: "80 % de déclin. Un effondrement mesuré sur trente ans.",
-    source: "https://www.nature.com/...",
-    volume: 0.6
+    script: [{ text: "", delay: 500 }],
+    fact: "3 000 litres.",
+    source: "https://tribeimpactcapital.com/impact-hub/bottles-of-water-needed-for-one-dinner-steak/#:~:text=Meaning%2C%203%2C000%20litres%20of%20water%20are%20needed%20to%20produce%20one%20200%2Dgram%20dinner%20steak.%20This%20is%20equal%20to%206%2C000%20bottles%20of%20water%20(at%20500%20millilitres%20per%20bottle).",
+    volume: 0.8,
+    distortion: 0.00,
+    pitch: 1.00,
   },
   {
     question: "Quelle masse de déchets électroniques l’humanité produit-elle chaque année ?",
@@ -58,13 +18,90 @@ export const STAGES = [
     unit: "tonnes",
     glyphs: ['x'],
     voice: '/audio/voice_5.mp3',
-    script: [
-      { text: "On empile, on jette, et on recommence. ", delay: 500 },
-      { text: "C’est un cycle comme un autre.", delay: 700 }
-    ],
-    fact: "62 000 000 de tonnes. Une croissance plus rapide que le recyclage.",
-    source: "https://ewastemonitor.info/...",
-    volume: 0.5
+    script: [{ text: "", delay: 500 },],
+    fact: "62 000 000 de tonnes.",
+    source: "https://ewastemonitor.info/the-global-e-waste-monitor-2024/#:~:text=A%20record%2062%20million%20tonnes%20(Mt)%20of%20e%2Dwaste%20was%20produced%20in%202022%2C%20Up%2082%25%20from%202010%3B%20On%20track%20to%20rise%20another%2032%25%2C%20to%2082%20million%20tonnes%2C%20in%202030%3B%20Billions%20of%20dollars%20worth%20of%20strategically%2Dvaluable%20resources%20squandered%2C%20dumped%3B%20Just%201%25%20of%20rare%20earth%20element%20demand%20is%20met%20by%20e%2Dwaste%20recycling",
+    volume: 0.8,
+    distortion: 0.005,
+    pitch: 0.99,
+  },
+  {
+    question: "Quelle quantité de plastique finit dans l’océan chaque année ?",
+    answer: "9 000 000",
+    unit: "tonnes",
+    glyphs: ['~'],
+    voice: '/audio/voice_2.mp3',
+    script: [{ text: "", delay: 500 }],
+    fact: "9 000 000 de tonnes.",
+    source: "https://www.4ocean.com/blogs/notebook/the-state-of-the-ocean-plastic-crisis-2025?srsltid=AfmBOoqstUyaxnoYySFzJ1JgZciwktyS5sp02f7NlqAIthXi7GBQA1gf#:~:text=8%2D10%20million%20metric%20tons%20of%20new%20plastic%20flood%20our%20waters%20annually%20%E2%80%93%20that%27s%20a%20garbage%20truck%27s%20worth%20dumped%20every%20minute",
+    volume: 0.8,
+    distortion: 0.012,
+    pitch: 0.98,
+  },
+  {
+    question: "Quelle est la surface moyenne de déforestation chaque année dans le monde ?",
+    answer: "10 000 000",
+    unit: "hectares",
+    glyphs: ['|'],
+    voice: '/audio/voice_1.mp3',
+    script: [{ text: "", delay: 500 }],
+    fact: "10 000 000 d'hectares par an.",
+    source: "https://www.fao.org/newsroom/detail/global-deforestation-slows--but-forests-remain-under-pressure--fao-report-shows/en#:~:text=Deforestation%20and%20expansion%3A%20Deforestation%20slowed,6.78%20million%20in%202015%E2%80%932025.",
+    volume: 0.8,
+    distortion: 0.022,
+    pitch: 0.96,
+  },
+  {
+    question: "Quelle quantité de CO₂ l’humanité rejette-t-elle chaque année ?",
+    answer: "37 000 000 000",
+    unit: "tonnes",
+    glyphs: ['"'],
+    voice: '/audio/voice_7.mp3',
+    script: [{ text: "", delay: 500 }],
+    fact: "37 000 000 000 de tonnes.",
+    source: "https://www.statista.com/statistics/276629/global-co2-emissions/#:~:text=Global%20carbon%20dioxide%20emissions%20from%20fossil%20fuels%20and%20industry%20totaled%2038.11%20billion%20metric%20tons%20(GtCO%E2%82%82)%20in%202025",
+    volume: 0.8,
+    distortion: 0.035,
+    pitch: 0.92,
+  },
+  {
+    question: "De combien l'acidité des océans a-t-elle augmenté ?",
+    answer: "30",
+    unit: "%",
+    glyphs: ['°'],
+    voice: '/audio/voice_10.mp3',
+    script: [{ text: "", delay: 500 }],
+    fact: "30 % d'augmentation.",
+    source: "https://marine.copernicus.eu/ocean-climate-portal/ocean-acidification#:~:text=Between%201985%20and%202024%20ocean%20acidity%20has%20increased%20by%2017.5%25%20The%20pH%20scale%20is%20logarithmic%2C%20which%20means%20that%20a%20small%20drop%20in%20pH%20represents%20a%20big%20increase%20in%20acidity.%20If%20we%20go%20back%20to%20the%20pre%2Dindustrial%20era%2C%20this%20percentage%20is%20as%20high%20as%2040%25.",
+    volume: 0.8,
+    distortion: 0.055,
+    pitch: 0.85,
+  },
+  {
+    question: "Quelle masse de glace terrestre disparaît en moyenne chaque année ?",
+    answer: "548 000 000 000",
+    unit: "tonnes",
+    glyphs: ['^'],
+    voice: '/audio/voice_8.mp3',
+    script: [{ text: "", delay: 500 }],
+    fact: "548 000 000 000 de tonnes.",
+    source: "https://www.nature.com/articles/s41586-024-08545-z#:~:text=The%20last%20pentad%20(2019%E2%80%932023)%20includes%20the%204%E2%80%89years%20with%20the%20largest%20annual%20ice%20loss%20of%20more%20than%20400%E2%80%89Gt%E2%80%89yr%E2%88%921%2C%20including%20a%20record%20mass%20loss%20of%20548%E2%80%89%C2%B1%E2%80%89120%E2%80%89Gt%E2%80%89yr%E2%88%921%20(or%201.51%E2%80%89%C2%B1%E2%80%890.33%E2%80%89mm%E2%80%89yr%E2%88%921)%20in%202023.",
+    volume: 0.8,
+    distortion: 0.085,
+    pitch: 0.75,
+  },
+  {
+    question: "Quelle part de la biomasse d’insectes volants a disparu en une génération ?",
+    answer: "80",
+    unit: "%",
+    glyphs: ['*'],
+    voice: '/audio/voice_4.mp3',
+    script: [{ text: "", delay: 1000 }],
+    fact: "80 % de déclin.",
+    source: "https://www.mnhn.fr/fr/le-declin-des-insectes-met-en-peril-le-vivant#:~:text=les%20populations%20d%E2%80%99insectes%20ont%20diminu%C3%A9%20de%2070%20%C3%A0%2080%C2%A0%25%20dans%20les%20paysages%20europ%C3%A9ens%20mixtes%20agro%2Dindustriels%2C%20comme%20le%20montrent%20de%20nombreuses%20%C3%A9tudes%20men%C3%A9es%20durant%20ces%20dix%20derni%C3%A8res%20ann%C3%A9es.",
+    volume: 0.8,
+    distortion: 0.125,
+    pitch: 0.62,
   },
   {
     question: "Combien de personnes meurent chaque année à cause de la pollution de l’air ?",
@@ -72,68 +109,24 @@ export const STAGES = [
     unit: "personnes",
     glyphs: ['-'],
     voice: '/audio/voice_6.mp3',
-    script: [
-      { text: "Une statistique stable. ", delay: 500 },
-      { text: "C'est le prix à payer pour continuer de circuler.", delay: 800 }
-    ],
-    fact: "7 000 000 de morts. Mortalité documentée à l’échelle mondiale.",
-    source: "https://www.who.int/...",
-    volume: 0.4
-  },
-  {
-    question: "Quelle quantité de CO₂ l’humanité rejette-t-elle chaque année ?",
-    answer: "37 000 000 000",
-    unit: "tonnes",
-    glyphs: ['§'],
-    voice: '/audio/voice_7.mp3',
-    script: [
-      { text: "Le ciel change, mais les indicateurs sont au vert. ", delay: 500 },
-      { text: "C'est l'essentiel.", delay: 800 }
-    ],
-    fact: "37 000 000 000 de tonnes. Accumulation atmosphérique nette.",
-    source: "https://www.globalcarbonproject.org/...",
-    volume: 0.3
-  },
-  {
-    question: "Quelle masse de glace terrestre disparaît chaque année ?",
-    answer: "1 000 000 000 000",
-    unit: "tonnes",
-    glyphs: ['^'],
-    voice: '/audio/voice_8.mp3',
-    script: [
-      { text: "C'est physique. C'est mathématique. ", delay: 500 },
-      { text: "C'est définitif.", delay: 1000 }
-    ],
-    fact: "1 000 000 000 000 de tonnes. Perte mesurée par satellites.",
-    source: "https://essd.copernicus.org/...",
-    volume: 0.2
+    script: [{ text: "", delay: 500 }],
+    fact: "7 000 000 de morts.",
+    source: "https://www.who.int/health-topics/air-pollution#tab=tab_2:~:text=The%20combined%20effects%20of%20ambient%20air%20pollution%20and%20household%20air%20pollution%20is%20associated%20with%207%20million%20premature%20deaths%20annually.",
+    volume: 0.8,
+    distortion: 0.165,
+    pitch: 0.50,
   },
   {
     question: "Combien d’espèces disparaissent définitivement chaque année ?",
-    answer: "36 000",
+    answer: "30 000",
     unit: "espèces",
-    glyphs: ['&'],
+    glyphs: ['+'],
     voice: '/audio/voice_9.mp3',
-    script: [
-      { text: "On simplifie l'équation du vivant. ", delay: 500 },
-      { text: "C'est beaucoup plus lisible ainsi.", delay: 800 }
-    ],
-    fact: "36 000 espèces rayées du registre. Taux d'extinction record.",
-    source: "https://ipbes.net/...",
-    volume: 0.12
-  },
-  {
-    question: "Quel est le déclin moyen des populations de vertébrés depuis 1970 ?",
-    answer: "73",
-    unit: "%",
-    glyphs: ['°'],
-    voice: '/audio/voice_10.mp3',
-    script: [
-      { text: "La pièce est presque vide. ", delay: 500 },
-      { text: "On va pouvoir fermer boutique.", delay: 1000 }
-    ],
-    fact: "73 % de déclin. Population mondiale des vertébrés.",
-    source: "https://livingplanet.panda.org/",
-    volume: 0.08
+    script: [{ text: "", delay: 500 }],
+    fact: "30 000 espèces.",
+    source: "https://www.biologicaldiversity.org/programs/population_and_sustainability/extinction/#:~:text=Harvard%20biologist%20E.%20O.%20Wilson%20estimated%20that%2030%2C000%20species%20per%20year%20(or%20three%20species%20per%20hour)%20are%20being%20driven%20to%20extinction",
+    volume: 0.8,
+    distortion: 0.20,
+    pitch: 0.40,
   }
 ];

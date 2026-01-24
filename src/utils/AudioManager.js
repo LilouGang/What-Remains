@@ -23,66 +23,94 @@ class AudioManager {
   }
 
   initNodes() {
-    try {
-      this.ctx = Howler.ctx;
-      if (!this.ctx || this.initialized) return;
+    this.ctx = Howler.ctx;
+    if (!this.ctx || this.initialized) return;
 
-      this.musicDistortion = this.ctx.createWaveShaper();
-      this.musicGain = this.ctx.createGain();
+    this.musicDistortion = this.ctx.createWaveShaper();
+    this.musicGain = this.ctx.createGain();
 
-      // Deconnexion du master pour eviter le son propre
-      Howler.masterGain.disconnect();
-      Howler.masterGain.connect(this.musicDistortion);
-      this.musicDistortion.connect(this.musicGain);
-      this.musicGain.connect(this.ctx.destination);
+    Howler.masterGain.disconnect();
+    Howler.masterGain.connect(this.musicDistortion);
+    this.musicDistortion.connect(this.musicGain);
+    this.musicGain.connect(this.ctx.destination);
 
-      this.initialized = true;
-    } catch (e) {
-      console.error("Audio init failed", e);
-    }
+    this.initialized = true;
   }
 
-  updateDistortion(step, manualVolume) {
-    if (!this.initialized) return;
-    const distAmount = Math.pow(step, 1.8) * 1200;
-    this.musicDistortion.curve = this.makeDistortionCurve(distAmount);
-    this.musicGain.gain.setTargetAtTime(manualVolume, this.ctx.currentTime, 0.2);
-  }
-
-  playFinalDrop() {
-    if (!this.ctx) return;
+  updateEffects(targetDist, targetVol, targetPitch, duration = 5000) {
+    if (!this.initialized) this.initNodes();
+    
     const now = this.ctx.currentTime;
-    this.musicGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
-  }
+    const durationSec = duration / 1000;
 
-  loadSounds() {
-    if (this.ambient) return;
-    this.ambient = new Howl({ src: ['/audio/main.mp3'], loop: true, volume: 0.5, html5: false });
-    this.impact = new Howl({ src: ['/audio/error.mp3'], volume: 0.3 });
+    // 1. VOLUME (Transition Native fluide)
+    // On annule les transitions en cours pour éviter les conflits
+    this.musicGain.gain.cancelScheduledValues(now);
+    this.musicGain.gain.setValueAtTime(this.musicGain.gain.value, now);
+    this.musicGain.gain.linearRampToValueAtTime(targetVol, now + durationSec);
+
+    // 2. PITCH & DISTORTION (Transition par interpolation "Tween")
+    // Comme ces paramètres n'ont pas de rampes natives, on les fait varier manuellement
+    const startDist = this.currentDistVal || 0;
+    const startPitch = this.ambient ? this.ambient.rate() : 1;
+    const startTime = performance.now();
+
+    const animate = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Calcul des valeurs intermédiaires
+      const currentDist = startDist + (targetDist - startDist) * progress;
+      const currentPitch = startPitch + (targetPitch - startPitch) * progress;
+
+      // Mise à jour de la Distortion
+      const distAmount = Math.pow(currentDist, 2) * 2000;
+      this.musicDistortion.curve = this.makeDistortionCurve(distAmount);
+      this.currentDistVal = currentDist; // On stocke pour la prochaine transition
+
+      // Mise à jour du Pitch
+      if (this.ambient) {
+        this.ambient.rate(currentPitch);
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
   }
 
   playAmbient() {
-    this.loadSounds();
-    if (this.ambient && !this.ambient.playing()) {
+    if (!this.ambient) {
+      this.ambient = new Howl({ src: ['/audio/main.mp3'], loop: true, volume: 1, html5: false });
+      this.impact = new Howl({ src: ['/audio/error.mp3'], volume: 0.4 });
+    }
+    if (!this.ambient.playing()) {
       this.ambient.play();
-      setTimeout(() => this.initNodes(), 100);
+      this.initNodes();
     }
   }
 
-  playVoice(file, onEndCallback) {
+  playVoice(file, onEnd) {
     if (this.currentVoice) this.currentVoice.stop();
     this.currentVoice = new Howl({ 
       src: [file], 
       autoplay: true, 
       volume: 1,
-      onend: () => { if (onEndCallback) onEndCallback(); }
+      onend: () => { if(onEnd) onEnd(); }
     });
+  }
+
+  playFinalDrop() {
+    if (this.musicGain) {
+      this.musicGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.2);
+    }
   }
 
   stopAll() {
     if (this.ambient) this.ambient.stop();
     if (this.currentVoice) this.currentVoice.stop();
-    Howler.mute(false);
   }
 }
 

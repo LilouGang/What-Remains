@@ -4,8 +4,8 @@ import { audioManager } from "./utils/AudioManager";
 import { STAGES } from "./constants/stages";
 
 const FINAL_SCRIPT = [
-  { text: "Le calcul est terminé. ", delay: 500 },
-  { text: "Essayez de vivre avec.", delay: 800 }
+  { text: "Vous ne pouvez plus l'ignorer. ", delay: 500 },
+  { text: "Qu'allez-vous faire ?", delay: 800 }
 ];
 const FINAL_VOICE = '/audio/final_voice.mp3';
 
@@ -69,16 +69,47 @@ export default function App() {
     }
   };
 
+  const playVoiceAndWait = (file) => {
+    // Si pas de fichier audio défini, on considère que c'est "fini" tout de suite
+    if (!file) return Promise.resolve();
+
+    return new Promise((resolve) => {
+      // On passe le callback resolve à playVoice
+      audioManager.playVoice(file, () => {
+        resolve();
+      });
+    });
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && inputValue.trim() !== "" && !showFact) {
-      const stage = STAGES[stageIndex];
-      if (audioManager.impact) audioManager.impact.play();
-      setDecayConfig({ glyphs: stage.glyphs });
-      audioManager.updateEffects(stage.distortion, stage.volume, stage.pitch, 7500);
-      setShowFact(true);
-      audioManager.playVoice(stage.voice);
+      const currentStage = STAGES[stageIndex];
+      const nextStage = STAGES[stageIndex + 1]; // On regarde l'étape d'après
 
-      runTypewriter(stage.script).then(() => {
+      if (audioManager.impact) audioManager.impact.play();
+      
+      // 1. On applique les glyphs de l'étape actuelle (visuel)
+      setDecayConfig({ glyphs: currentStage.glyphs });
+      setShowFact(true);
+
+      // 2. AUDIO : On lance la transition de 5s vers l'étape SUIVANTE
+      // Si on est à la dernière question, nextStage sera undefined, donc on ne fait rien
+      if (nextStage) {
+        audioManager.updateEffects(
+          nextStage.distortion, 
+          nextStage.volume, 
+          nextStage.pitch, 
+          5000 // Transition fluide de 5 secondes
+        );
+      }
+
+      // 3. Narration : Script + Voix de l'étape ACTUELLE
+      const typewriterPromise = runTypewriter(currentStage.script);
+      const voicePromise = playVoiceAndWait(currentStage.voice);
+
+      Promise.all([typewriterPromise, voicePromise]).then(() => {
+        // Une fois que tout est fini, on attend encore 3s avant de changer de question
+        // À ce moment-là, la transition audio de 5s sera terminée ou presque
         setTimeout(handleStageTransition, 3000);
       });
     }
@@ -120,7 +151,7 @@ export default function App() {
           </p>
         ) : (
           <div className="fade-in" style={{ textAlign: 'center', color: '#1a1a1a', padding: '0 20px' }}>
-            <h2 style={{ marginBottom: '40px', fontWeight: 'normal', fontSize: '18px' }}>Agir maintenant</h2>
+            <h2 style={{ marginBottom: '40px', fontWeight: 'normal', fontSize: '18px' }}>Agissez maintenant</h2>
             <ul style={{ listStyle: 'none', padding: 0, lineHeight: '2.5', fontSize: '16px', marginBottom: '50px' }}>
               <li><a href="https://www.wwf.fr/" target="_blank" rel="noopener noreferrer" style={{ color: 'black', textDecoration: 'none', borderBottom: '1px solid #eee' }}>WWF — Protéger la biodiversité</a></li>
               <li><a href="https://seashepherd.fr/" target="_blank" rel="noopener noreferrer" style={{ color: 'black', textDecoration: 'none', borderBottom: '1px solid #eee' }}>Sea Shepherd — Défendre les océans</a></li>
@@ -152,11 +183,18 @@ export default function App() {
             <p style={{ opacity: introStep >= 2 ? 1 : 0, transition: 'opacity 1.5s', fontSize: '18px', marginBottom: '35px' }}>Activez le volume pour une expérience optimale</p>
             <button 
               onClick={() => {
-                if(isButtonReady) {
-                  audioManager.playAmbient();
-                  audioManager.updateEffects(STAGES[0].distortion, STAGES[0].volume, STAGES[0].pitch);
-                  setGameState('PLAYING');
-                }
+                if(isButtonReady) { 
+                  audioManager.playAmbient(); 
+                  const firstStage = STAGES[0];
+                  audioManager.updateEffects(
+                    firstStage.distortion, 
+                    firstStage.volume, 
+                    firstStage.pitch, 
+                    100 
+                  );
+                  
+                  setGameState('PLAYING'); 
+                } 
               }}
               style={{ 
                 opacity: introStep >= 3 ? 1 : 0, 
@@ -180,7 +218,7 @@ export default function App() {
             ) : (
               <div className="fade-in">
                 <p style={{ fontSize: '20px', color: '#d32f2f', margin: '18px 0 10px 0', lineHeight: '1.4' }}>{STAGES[stageIndex].fact}</p>
-                <a href={STAGES[stageIndex].source} target="_blank" style={{ fontSize: '10px', opacity: 0.5, textDecoration: 'none', color: '#3c5a99' }}>— voir la source</a>
+                <a href={STAGES[stageIndex].source} target="_blank" style={{ fontSize: '14px', opacity: 0.8, textDecoration: 'none', color: '#3c5a99' }}>— voir la source</a>
               </div>
             )}
           </div>

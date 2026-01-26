@@ -6,9 +6,13 @@ class AudioManager {
     this.initialized = false;
     this.musicDistortion = null;
     this.musicGain = null;
+    this.voiceGain = null;
     this.ambient = null;
     this.impact = null;
     this.currentVoice = null;
+    
+    this.currentDistVal = 0;
+    this.animationFrame = null;
   }
 
   makeDistortionCurve(amount) {
@@ -28,62 +32,70 @@ class AudioManager {
 
     this.musicDistortion = this.ctx.createWaveShaper();
     this.musicGain = this.ctx.createGain();
+    this.voiceGain = this.ctx.createGain();
+
+    this.voiceGain.gain.setValueAtTime(3, this.ctx.currentTime);
 
     Howler.masterGain.disconnect();
-    Howler.masterGain.connect(this.musicDistortion);
+
     this.musicDistortion.connect(this.musicGain);
     this.musicGain.connect(this.ctx.destination);
+
+    this.voiceGain.connect(this.ctx.destination);
 
     this.initialized = true;
   }
 
-  updateEffects(targetDist, targetVol, targetPitch, duration = 5000) {
+  updateEffects(targetDist, targetVol, targetPitch, duration = 7500) {
     if (!this.initialized) this.initNodes();
     
     const now = this.ctx.currentTime;
     const durationSec = duration / 1000;
 
-    // 1. VOLUME (Transition Native fluide)
-    // On annule les transitions en cours pour éviter les conflits
     this.musicGain.gain.cancelScheduledValues(now);
     this.musicGain.gain.setValueAtTime(this.musicGain.gain.value, now);
     this.musicGain.gain.linearRampToValueAtTime(targetVol, now + durationSec);
 
-    // 2. PITCH & DISTORTION (Transition par interpolation "Tween")
-    // Comme ces paramètres n'ont pas de rampes natives, on les fait varier manuellement
-    const startDist = this.currentDistVal || 0;
+    const startDist = this.currentDistVal;
     const startPitch = this.ambient ? this.ambient.rate() : 1;
     const startTime = performance.now();
+
+    if (this.animationFrame) cancelAnimationFrame(this.animationFrame);
 
     const animate = (currentTime) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Calcul des valeurs intermédiaires
       const currentDist = startDist + (targetDist - startDist) * progress;
       const currentPitch = startPitch + (targetPitch - startPitch) * progress;
 
-      // Mise à jour de la Distortion
       const distAmount = Math.pow(currentDist, 2) * 2000;
       this.musicDistortion.curve = this.makeDistortionCurve(distAmount);
-      this.currentDistVal = currentDist; // On stocke pour la prochaine transition
+      this.currentDistVal = currentDist;
 
-      // Mise à jour du Pitch
-      if (this.ambient) {
-        this.ambient.rate(currentPitch);
-      }
+      if (this.ambient) this.ambient.rate(currentPitch);
 
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        this.animationFrame = requestAnimationFrame(animate);
       }
     };
 
-    requestAnimationFrame(animate);
+    this.animationFrame = requestAnimationFrame(animate);
   }
 
   playAmbient() {
     if (!this.ambient) {
-      this.ambient = new Howl({ src: ['/audio/main.mp3'], loop: true, volume: 1, html5: false });
+      this.ambient = new Howl({ 
+        src: ['/audio/main.mp3'], 
+        loop: true, 
+        volume: 1, 
+        html5: false,
+        onplay: () => {
+          const node = this.ambient._sounds[0]._node;
+          node.disconnect();
+          node.connect(this.musicDistortion);
+        }
+      });
       this.impact = new Howl({ src: ['/audio/error.mp3'], volume: 0.4 });
     }
     if (!this.ambient.playing()) {
@@ -94,23 +106,41 @@ class AudioManager {
 
   playVoice(file, onEnd) {
     if (this.currentVoice) this.currentVoice.stop();
+    
     this.currentVoice = new Howl({ 
       src: [file], 
       autoplay: true, 
       volume: 1,
+      onloaderror: () => { if(onEnd) onEnd(); },
+      onplayerror: () => { if(onEnd) onEnd(); },
+      onplay: () => {
+        if (this.currentVoice._sounds[0]) {
+          const node = this.currentVoice._sounds[0]._node;
+          node.disconnect();
+          node.connect(this.voiceGain);
+        }
+      },
       onend: () => { if(onEnd) onEnd(); }
     });
   }
 
+  setVoiceVolume(val) {
+    if (!this.initialized) this.initNodes();
+    this.voiceGain.gain.setTargetAtTime(val, this.ctx.currentTime, 0.1);
+  }
+
   playFinalDrop() {
-    if (this.musicGain) {
-      this.musicGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.2);
+    if (this.musicGain && this.ctx) {
+      const now = this.ctx.currentTime;
+      this.musicGain.gain.cancelScheduledValues(now);
+      this.musicGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
     }
   }
 
   stopAll() {
     if (this.ambient) this.ambient.stop();
     if (this.currentVoice) this.currentVoice.stop();
+    if (this.animationFrame) cancelAnimationFrame(this.animationFrame);
   }
 }
 

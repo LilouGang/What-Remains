@@ -7,7 +7,6 @@ const FINAL_SCRIPT = [
   { text: "Vous ne pouvez plus l'ignorer. ", delay: 500 },
   { text: "Qu'allez-vous faire ?", delay: 800 }
 ];
-const FINAL_VOICE = '/audio/final_voice.mp3';
 
 const HeadsetIcon = () => <svg width="40" height="40" viewBox="0 0 24 24" fill="black"><path d="M12 2C6.48 2 2 6.48 2 12v7c0 1.1.9 2 2 2h3v-8H4v-1c0-4.41 3.59-8 8-8s8 3.59 8 8v1h-3v8h3c1.1 0 2-.9 2-2v-7c0-5.52-4.48-10-10-10z"/></svg>;
 const InstaIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>;
@@ -70,78 +69,76 @@ export default function App() {
   };
 
   const playVoiceAndWait = (file) => {
-    // Si pas de fichier audio défini, on considère que c'est "fini" tout de suite
     if (!file) return Promise.resolve();
-
     return new Promise((resolve) => {
-      // On passe le callback resolve à playVoice
-      audioManager.playVoice(file, () => {
-        resolve();
-      });
+      audioManager.playVoice(file, () => resolve());
     });
   };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && inputValue.trim() !== "" && !showFact) {
       const currentStage = STAGES[stageIndex];
-      const nextStage = STAGES[stageIndex + 1]; // On regarde l'étape d'après
+      const nextStage = STAGES[stageIndex + 1];
 
       if (audioManager.impact) audioManager.impact.play();
-      
-      // 1. On applique les glyphs de l'étape actuelle (visuel)
       setDecayConfig({ glyphs: currentStage.glyphs });
       setShowFact(true);
 
-      // 2. AUDIO : On lance la transition de 5s vers l'étape SUIVANTE
-      // Si on est à la dernière question, nextStage sera undefined, donc on ne fait rien
       if (nextStage) {
-        audioManager.updateEffects(
-          nextStage.distortion, 
-          nextStage.volume, 
-          nextStage.pitch, 
-          5000 // Transition fluide de 5 secondes
-        );
+        audioManager.updateEffects(nextStage.distortion, nextStage.volume, nextStage.pitch, 5000);
       }
 
-      // 3. Narration : Script + Voix de l'étape ACTUELLE
       const typewriterPromise = runTypewriter(currentStage.script);
       const voicePromise = playVoiceAndWait(currentStage.voice);
 
       Promise.all([typewriterPromise, voicePromise]).then(() => {
-        // Une fois que tout est fini, on attend encore 3s avant de changer de question
-        // À ce moment-là, la transition audio de 5s sera terminée ou presque
-        setTimeout(handleStageTransition, 3000);
+        setTimeout(handleStageTransition, 7000);
       });
     }
   };
 
   const triggerTripleGlitch = () => {
-    const flash = (cb) => {
+    const flashSync = (duration, cb) => {
       setStrobeState('WHITE');
-      setTimeout(() => { setStrobeState('NONE'); if(cb) cb(); }, 50);
+      audioManager.setMasterMute(true); 
+      setTimeout(() => { 
+        setStrobeState('NONE'); 
+        audioManager.setMasterMute(false); 
+        if(cb) cb(); 
+      }, duration);
     };
 
-    flash(() => setTimeout(() => {
-      flash(() => setTimeout(() => {
-        setStrobeState('WHITE');
-        audioManager.playFinalDrop();
-        setShowFact(false); 
-        setDisplayedSubtitle(""); 
-        setTimeout(() => {
-          setGameState('FINAL_SHOCK');
-          audioManager.stopAll();
+    flashSync(50, () => {
+      setTimeout(() => {
+        flashSync(50, () => {
           setTimeout(() => {
-            runTypewriter(FINAL_SCRIPT).then(() => {
+            setStrobeState('WHITE');
+            audioManager.setMasterMute(true); 
+            audioManager.playFinalDrop();
+            
+            setShowFact(false); 
+            setDisplayedSubtitle(""); 
+            setInputValue("");
+
+            setTimeout(() => {
+              setGameState('FINAL_SHOCK');
+              audioManager.stopAll(); 
+              audioManager.setMasterMute(false); 
+              setStrobeState('NONE');
+
               setTimeout(() => {
-                setShowFinalLinks(true);
-              }, 3000);
-            });
-          }, 2500);
+                runTypewriter(FINAL_SCRIPT).then(() => {
+                  setTimeout(() => setShowFinalLinks(true), 3000);
+                });
+              }, 2500);
+            }, 200);
+          }, 50);
         }, 50);
-      }, 50));
-    }, 50));
+      }, 50);
+    });
   };
 
+  // --- RENDU FINAL ---
   if (gameState === 'FINAL_SHOCK') {
     return (
       <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -157,13 +154,12 @@ export default function App() {
               <li><a href="https://seashepherd.fr/" target="_blank" rel="noopener noreferrer" style={{ color: 'black', textDecoration: 'none', borderBottom: '1px solid #eee' }}>Sea Shepherd — Défendre les océans</a></li>
               <li><a href="https://www.greenpeace.fr/" target="_blank" rel="noopener noreferrer" style={{ color: 'black', textDecoration: 'none', borderBottom: '1px solid #eee' }}>Greenpeace — Urgence climatique</a></li>
             </ul>
-            
             <div style={{ display: 'flex', gap: '25px', justifyContent: 'center', alignItems: 'center', marginBottom: '40px' }}>
-              <a href="https://killianlacaque.vercel.app/" target="_blank" rel="noopener noreferrer" style={{ width: '28px', opacity: 0.8 }}>
+              <a href="https://killianlacaque.vercel.app/" target="_blank" rel="noopener noreferrer" style={{ width: '28px' }}>
                 <img src="/portfolio-logo.png" alt="P" style={{ width: '100%' }} />
               </a>
-              <a href="https://instagram.com/killian.lcq_/" target="_blank" rel="noopener noreferrer" style={{ color: '#1a1a1a', opacity: 0.7 }}><InstaIcon /></a>
-              <a href="https://linkedin.com/in/killian-lacaque/" target="_blank" rel="noopener noreferrer" style={{ color: '#1a1a1a', opacity: 0.7 }}><LinkedinIcon /></a>
+              <a href="https://instagram.com/killian.lcq_/" target="_blank" rel="noopener noreferrer" style={{ color: '#1a1a1a' }}><InstaIcon /></a>
+              <a href="https://linkedin.com/in/killian-lacaque/" target="_blank" rel="noopener noreferrer" style={{ color: '#1a1a1a' }}><LinkedinIcon /></a>
             </div>
           </div>
         )}
@@ -185,22 +181,11 @@ export default function App() {
               onClick={() => {
                 if(isButtonReady) { 
                   audioManager.playAmbient(); 
-                  const firstStage = STAGES[0];
-                  audioManager.updateEffects(
-                    firstStage.distortion, 
-                    firstStage.volume, 
-                    firstStage.pitch, 
-                    100 
-                  );
-                  
+                  audioManager.updateEffects(STAGES[0].distortion, STAGES[0].volume, STAGES[0].pitch, 100);
                   setGameState('PLAYING'); 
                 } 
               }}
-              style={{ 
-                opacity: introStep >= 3 ? 1 : 0, 
-                transition: 'opacity 1.5s', // TRANSITION RESTAURÉE
-                border: 'none', background: 'none', fontSize: '18px', borderBottom: '1px solid black', paddingBottom: '4px', cursor: 'pointer', fontFamily: 'inherit' 
-              }}
+              style={{ opacity: introStep >= 3 ? 1 : 0, transition: 'opacity 1.5s', border: 'none', background: 'none', fontSize: '18px', borderBottom: '1px solid black', paddingBottom: '4px', cursor: 'pointer', fontFamily: 'inherit' }}
             >Commencer</button>
           </div>
         )}
@@ -218,7 +203,7 @@ export default function App() {
             ) : (
               <div className="fade-in">
                 <p style={{ fontSize: '20px', color: '#d32f2f', margin: '18px 0 10px 0', lineHeight: '1.4' }}>{STAGES[stageIndex].fact}</p>
-                <a href={STAGES[stageIndex].source} target="_blank" style={{ fontSize: '14px', opacity: 0.8, textDecoration: 'none', color: '#3c5a99' }}>— voir la source</a>
+                <a href={STAGES[stageIndex].source} target="_blank" rel="noopener noreferrer" style={{ fontSize: '14px', opacity: 0.8, textDecoration: 'none', color: '#3c5a99' }}>— voir la source</a>
               </div>
             )}
           </div>

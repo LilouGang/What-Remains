@@ -7,10 +7,10 @@ class AudioManager {
     this.musicDistortion = null;
     this.musicGain = null;
     this.voiceGain = null;
+    this.masterMuteNode = null; 
     this.ambient = null;
     this.impact = null;
     this.currentVoice = null;
-    
     this.currentDistVal = 0;
     this.animationFrame = null;
   }
@@ -33,22 +33,29 @@ class AudioManager {
     this.musicDistortion = this.ctx.createWaveShaper();
     this.musicGain = this.ctx.createGain();
     this.voiceGain = this.ctx.createGain();
-
-    this.voiceGain.gain.setValueAtTime(3, this.ctx.currentTime);
+    this.masterMuteNode = this.ctx.createGain(); 
 
     Howler.masterGain.disconnect();
-
+    
+    // Branchement : Sources -> Effets -> MasterMute -> Sortie
     this.musicDistortion.connect(this.musicGain);
-    this.musicGain.connect(this.ctx.destination);
-
-    this.voiceGain.connect(this.ctx.destination);
+    this.musicGain.connect(this.masterMuteNode);
+    this.voiceGain.connect(this.masterMuteNode);
+    this.masterMuteNode.connect(this.ctx.destination);
 
     this.initialized = true;
   }
 
-  updateEffects(targetDist, targetVol, targetPitch, duration = 7500) {
+  // MÉTHODE CRUCIALE POUR LE GLITCH
+  setMasterMute(isMuted) {
     if (!this.initialized) this.initNodes();
-    
+    if (this.masterMuteNode) {
+      this.masterMuteNode.gain.setValueAtTime(isMuted ? 0 : 1, this.ctx.currentTime);
+    }
+  }
+
+  updateEffects(targetDist, targetVol, targetPitch, duration = 5000) {
+    if (!this.initialized) this.initNodes();
     const now = this.ctx.currentTime;
     const durationSec = duration / 1000;
 
@@ -65,7 +72,6 @@ class AudioManager {
     const animate = (currentTime) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-
       const currentDist = startDist + (targetDist - startDist) * progress;
       const currentPitch = startPitch + (targetPitch - startPitch) * progress;
 
@@ -74,22 +80,15 @@ class AudioManager {
       this.currentDistVal = currentDist;
 
       if (this.ambient) this.ambient.rate(currentPitch);
-
-      if (progress < 1) {
-        this.animationFrame = requestAnimationFrame(animate);
-      }
+      if (progress < 1) this.animationFrame = requestAnimationFrame(animate);
     };
-
     this.animationFrame = requestAnimationFrame(animate);
   }
 
   playAmbient() {
     if (!this.ambient) {
       this.ambient = new Howl({ 
-        src: ['/audio/main.mp3'], 
-        loop: true, 
-        volume: 1, 
-        html5: false,
+        src: ['/audio/main.mp3'], loop: true, volume: 1, html5: false,
         onplay: () => {
           const node = this.ambient._sounds[0]._node;
           node.disconnect();
@@ -106,13 +105,8 @@ class AudioManager {
 
   playVoice(file, onEnd) {
     if (this.currentVoice) this.currentVoice.stop();
-    
     this.currentVoice = new Howl({ 
-      src: [file], 
-      autoplay: true, 
-      volume: 1,
-      onloaderror: () => { if(onEnd) onEnd(); },
-      onplayerror: () => { if(onEnd) onEnd(); },
+      src: [file], autoplay: true, volume: 1,
       onplay: () => {
         if (this.currentVoice._sounds[0]) {
           const node = this.currentVoice._sounds[0]._node;
@@ -120,13 +114,9 @@ class AudioManager {
           node.connect(this.voiceGain);
         }
       },
-      onend: () => { if(onEnd) onEnd(); }
+      onend: () => { if(onEnd) onEnd(); },
+      onloaderror: () => { if(onEnd) onEnd(); }
     });
-  }
-
-  setVoiceVolume(val) {
-    if (!this.initialized) this.initNodes();
-    this.voiceGain.gain.setTargetAtTime(val, this.ctx.currentTime, 0.1);
   }
 
   playFinalDrop() {
@@ -141,6 +131,7 @@ class AudioManager {
     if (this.ambient) this.ambient.stop();
     if (this.currentVoice) this.currentVoice.stop();
     if (this.animationFrame) cancelAnimationFrame(this.animationFrame);
+    if (this.masterMuteNode) this.masterMuteNode.gain.setValueAtTime(1, this.ctx.currentTime);
   }
 }
 

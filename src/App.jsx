@@ -85,14 +85,14 @@ export default function App() {
       setShowFact(true);
 
       if (nextStage) {
-        audioManager.updateEffects(nextStage.distortion, nextStage.volume, nextStage.pitch, 5000);
+        audioManager.updateEffects(nextStage.distortion, nextStage.volume, nextStage.pitch, 7500);
       }
 
       const typewriterPromise = runTypewriter(currentStage.script);
       const voicePromise = playVoiceAndWait(currentStage.voice);
 
       Promise.all([typewriterPromise, voicePromise]).then(() => {
-        setTimeout(handleStageTransition, 7000);
+        setTimeout(handleStageTransition, 5000);
       });
     }
   };
@@ -138,7 +138,6 @@ export default function App() {
     });
   };
 
-  // --- RENDU FINAL ---
   if (gameState === 'FINAL_SHOCK') {
     return (
       <div style={{ position: 'fixed', inset: 0, backgroundColor: 'white', zIndex: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>

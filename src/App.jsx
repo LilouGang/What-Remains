@@ -154,7 +154,7 @@ export default function App() {
               <li><a href="https://www.greenpeace.fr/" target="_blank" rel="noopener noreferrer" style={{ color: 'black', textDecoration: 'none', borderBottom: '1px solid #eee' }}>Greenpeace — Urgence climatique</a></li>
             </ul>
             <div style={{ display: 'flex', gap: '25px', justifyContent: 'center', alignItems: 'center', marginBottom: '40px' }}>
-              <a href="https://killianlacaque.vercel.app/" target="_blank" rel="noopener noreferrer" style={{ width: '28px' }}>
+              <a href="https://killianlacaque.com/" target="_blank" rel="noopener noreferrer" style={{ width: '28px' }}>
                 <img src="/portfolio-logo.png" alt="P" style={{ width: '100%' }} />
               </a>
               <a href="https://instagram.com/killian.lcq_/" target="_blank" rel="noopener noreferrer" style={{ color: '#1a1a1a' }}><InstaIcon /></a>

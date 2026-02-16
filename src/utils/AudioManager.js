@@ -37,7 +37,6 @@ class AudioManager {
 
     Howler.masterGain.disconnect();
     
-    // Branchement : Sources -> Effets -> MasterMute -> Sortie
     this.musicDistortion.connect(this.musicGain);
     this.musicGain.connect(this.masterMuteNode);
     this.voiceGain.connect(this.masterMuteNode);
@@ -46,7 +45,6 @@ class AudioManager {
     this.initialized = true;
   }
 
-  // MÉTHODE CRUCIALE POUR LE GLITCH
   setMasterMute(isMuted) {
     if (!this.initialized) this.initNodes();
     if (this.masterMuteNode) {
